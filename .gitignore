@@ -1,0 +1,5 @@
+do-dns-updater-config.py
+venv
+__pycache__
+.vscode
+do-dns-updater.cache
