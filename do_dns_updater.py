@@ -68,7 +68,13 @@ def main():
         print("Environment variable `do_dns_domains` not set. Exiting.")
         return
     else:
-        domains = _domains.split(",")
+        # Split the string of domains into a list of domains
+        domains = []
+        for domain in _domains.split(","):
+            domain = domain.strip()
+            if not domain:
+                continue
+            domains.append(domain)
 
     # Grab the environment variable `do_dns_token`
     token = os.environ.get("do_dns_token")
