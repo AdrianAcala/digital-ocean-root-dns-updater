@@ -13,7 +13,7 @@ def create_sqlite_db():
     global db_location
     # Create database if it doesn't exist
     if not os.path.isfile(db_location):
-        conn = sqlite3.connect("last_ip.db")
+        conn = sqlite3.connect(db_location)
         c = conn.cursor()
         c.execute("CREATE TABLE last_ip (ip text)")
         conn.commit()
