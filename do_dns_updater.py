@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 """Application that updates A records for domains on DigitalOcean to your local IP address."""
 import digitalocean
 import requests
@@ -77,10 +78,10 @@ def update_last_ip(my_ip, token, domains):
 
 def main():
     """Main method"""
-    # Grab the environment variable `do_dns_domains` and split it into a list
-    _domains = os.environ.get("do_dns_domains")
+    # Grab the environment variable `DO_DNS_DOMAINS` and split it into a list
+    _domains = os.environ.get("DO_DNS_DOMAINS")
     if _domains is None:
-        print("Environment variable `do_dns_domains` not set. Exiting.")
+        print("Environment variable `DO_DNS_DOMAINS` not set. Exiting.")
         return
     else:
         # Split the string of domains into a list of domains
@@ -94,10 +95,10 @@ def main():
     global db_location
     db_location = "/tmp/do_dns_updater.cache"
 
-    # Grab the environment variable `do_dns_token`
-    token = os.environ.get("do_dns_token")
+    # Grab the environment variable `DO_DNS_TOKEN`
+    token = os.environ.get("DO_DNS_TOKEN")
     if token is None:
-        print("Environment variable `do_dns_token` not set. Exiting.")
+        print("Environment variable `DO_DNS_TOKEN` not set. Exiting.")
         return
 
     # Creates database if it doesn't exist
