@@ -5,20 +5,24 @@ import requests
 import sqlite3
 import os
 
+global db_location
 
 def create_sqlite_db():
     """Create an SQLite database to store the last IP address."""
-    
-    conn = sqlite3.connect("last_ip.db")
-    c = conn.cursor()
-    c.execute("""CREATE TABLE IF NOT EXISTS last_ip (ip)""")
-    conn.commit()
-    conn.close()
+    global db_location
+    # Create database if it doesn't exist
+    if not os.path.isfile(db_location):
+        conn = sqlite3.connect("last_ip.db")
+        c = conn.cursor()
+        c.execute("CREATE TABLE last_ip (ip text)")
+        conn.commit()
+        conn.close()
 
 
 def get_last_ip():
     """Gets the last IP address from the database. If it doesn't exist, return None."""
-    conn = sqlite3.connect("last_ip.db")
+    global db_location
+    conn = sqlite3.connect(db_location)
     c = conn.cursor()
     c.execute("SELECT ip FROM last_ip")
     last_ip = c.fetchone()
@@ -31,6 +35,26 @@ def get_last_ip():
 def get_my_ip():
     """Get the current IP address of the machine."""
     return requests.get("https://api.ipify.org", timeout=5).text
+
+
+def clear_last_ip_table():
+    """Clear the last IP address table."""
+    global db_location
+    conn = sqlite3.connect(db_location)
+    c = conn.cursor()
+    c.execute("DELETE FROM last_ip")
+    conn.commit()
+    conn.close()
+
+
+def update_last_ip_in_db(ip):
+    """Update the last IP address in the database."""
+    global db_location
+    conn = sqlite3.connect(db_location)
+    c = conn.cursor()
+    c.execute("INSERT INTO last_ip VALUES (?)", (ip,))
+    conn.commit()
+    conn.close()
 
 
 def update_last_ip(my_ip, token, domains):
@@ -47,17 +71,8 @@ def update_last_ip(my_ip, token, domains):
                     record.data = my_ip
                     record.save()
 
-        # Clear last_ip table
-        conn = sqlite3.connect("last_ip.db")
-        c = conn.cursor()
-        c.execute("DELETE FROM last_ip")
-        conn.commit()
-
-        # Save IP address to database
-        c = conn.cursor()
-        c.execute("INSERT INTO last_ip VALUES (?)", (my_ip,))
-        conn.commit()
-        conn.close()
+        clear_last_ip_table()
+        update_last_ip_in_db(my_ip)
 
 
 def main():
@@ -75,6 +90,9 @@ def main():
             if not domain:
                 continue
             domains.append(domain)
+
+    global db_location
+    db_location = "/tmp/do_dns_updater.cache"
 
     # Grab the environment variable `do_dns_token`
     token = os.environ.get("do_dns_token")
